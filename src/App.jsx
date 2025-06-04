@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Menu from './components/Menu';
+import Modal from './components/Modal';
 import ProductList from './components/products/ProductList';
 import ProductForm from './components/products/ProductForm';
 import ClientList from './components/clients/ClientList';
 import ClientForm from './components/clients/ClientForm';
 
 const App = () => {
-  const [view, setView] = useState('products'); // Estado para manejar la vista actual
+  const [view, setView] = useState('products');
   const [products, setProducts] = useState([]);
   const [clients, setClients] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchProducts = async () => {
     try {
@@ -38,18 +40,21 @@ const App = () => {
     <div>
       <h1>Management System</h1>
       <Menu onNavigate={setView} />
+      <button onClick={() => setIsModalOpen(true)}>Add New</button>
       {view === 'products' && (
-        <>
-          <ProductForm onProductAdded={fetchProducts} />
-          <ProductList products={products} onProductDeleted={fetchProducts} />
-        </>
+        <ProductList products={products} onProductDeleted={fetchProducts} />
       )}
       {view === 'clients' && (
-        <>
-          <ClientForm onClientAdded={fetchClients} />
-          <ClientList clients={clients} onClientDeleted={fetchClients} />
-        </>
+        <ClientList clients={clients} onClientDeleted={fetchClients} />
       )}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {view === 'products' && (
+          <ProductForm onProductAdded={() => { fetchProducts(); setIsModalOpen(false); }} />
+        )}
+        {view === 'clients' && (
+          <ClientForm onClientAdded={() => { fetchClients(); setIsModalOpen(false); }} />
+        )}
+      </Modal>
     </div>
   );
 };
